@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - admin_db
+
+  admin_db:
+      image: mysql
+      ports:
+          - "3308:3306"
+      command: --default-authentication-plugin=mysql_native_password
+      environment:
+          MYSQL_DATABASE: admin
+          MYSQL_PASSWORD: test
+          MYSQL_ROOT_PASSWORD: test
+      volumes:
+          - ./dump:/docker-entrypoint-initdb.d
+          - ./conf:/etc/mysql/conf.d
