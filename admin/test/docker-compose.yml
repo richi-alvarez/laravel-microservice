@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+    admin:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: 'php artisan serve --host=0.0.0.0'
+        volumes:
+            - .:/app
+        ports:
+            - 8000:8000
+        depends_on:
+            - db
+        links:
+            - db
+        networks:
+            - laravel-microservice
+    db:
+      image: mysql:8.0
+      ports:
+          - "3307:3306"
+      command: --default-authentication-plugin=mysql_native_password
+      environment:
+          MYSQL_DATABASE: dbname
+          MYSQL_PASSWORD: test
+          MYSQL_ROOT_PASSWORD: test
+      volumes:
+          - ./dump:/docker-entrypoint-initdb.d
+          - ./conf:/etc/mysql/conf.d
+          - persistent:/var/lib/mysql
+      networks:
+          - laravel-microservice
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        links:
+            - db:db
+        ports:
+            - 8001:80
+        environment:
+            MYSQL_USER: root
+            MYSQL_PASSWORD: test
+            MYSQL_ROOT_PASSWORD: test
+        networks:
+            - laravel-microservice
+volumes:
+    persistent: {}
+
+networks:
+    laravel-microservice:
